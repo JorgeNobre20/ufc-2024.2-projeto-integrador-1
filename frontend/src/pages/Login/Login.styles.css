@@ -1,0 +1,112 @@
+/* Estilo geral da página de login */
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centraliza horizontalmente */
+  justify-content: center; /* Centraliza verticalmente */
+  height: 100vh;
+    height: 100vh;
+  }
+  .imagen {
+    display: block;
+    margin: 0 auto 20px; /* Centraliza e adiciona margem abaixo da imagem */
+    max-width: 200px;    /* Ajuste o tamanho conforme necessário */
+    height: 1.6rem;
+    width: auto;
+  }
+  /* Container do formulário de login */
+  .login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 25px;
+    border: 1px solid #161d27;
+    border-radius: 10px;
+    background-color: #161d27;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin-top: 40px;
+  }
+
+.title{
+    color: #2696d2;
+    padding: 22px;
+    font-size: xx-large;
+}
+  
+  /* Estilo dos rótulos */
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: #fff;
+    text-align: left;
+    margin-left: 12px;
+  }
+  input {
+    background-color: #d9d9d9;
+  }
+  .esqueceu-senha{
+    text-align: right;
+    margin-bottom: 20px;
+    margin-right: 12px;
+    font-size: small;
+    margin-top: -5px;
+  }
+
+  .esqueceu-senha a{
+    text-decoration: none;
+    color: #2696d2;
+  }
+
+  /* Estilo dos campos de entrada */
+  input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+  }
+  
+  /* Estilo do botão */
+  .login-button {
+    width: 40%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #2696d2;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-button:hover {
+    background-color: #5cb3e2;
+  }
+  
+  .criar-conta{
+    color: #fff;
+    margin-top: 5px;
+    padding: 23px;
+  }
+
+  .criar-conta a{
+    color: #2696d2;
+    text-decoration: none;
+  }
+
+  /* Estilo para mensagens de erro */
+  .error-message {
+    color: red;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  /* Mensagens de erro para campos individuais */
+.field-error {
+    color: red;
+    font-size: 12px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+  }
+  
