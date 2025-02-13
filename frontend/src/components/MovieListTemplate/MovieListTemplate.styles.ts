@@ -142,6 +142,21 @@ export const MoviesList = styled.section`
   overflow-y: scroll;
 `;
 
+
+export const EmptyMovieListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 74vh;
+`;
+
+export const EmptyMovieListLabel = styled.p`
+  color: ${theme.colors.light};
+  text-align: center;
+  margin-top: 1rem;
+`;
+
 export const MovieListFooter = styled.footer`
   display: flex;
   flex-direction: row;

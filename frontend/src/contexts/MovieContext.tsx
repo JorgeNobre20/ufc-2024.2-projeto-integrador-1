@@ -6,6 +6,7 @@ interface MovieContextData {
   favoriteMovies: Movie[];
   favoriteMovieIds: number[];
 
+  startFavoriteMovies: (movies: Movie[]) => void;
   addFavoriteMovie: (movie: Movie) => void;
   removeFavoriteMovie: (movie: Movie) => void;
 }
@@ -37,9 +38,14 @@ export function MovieContextProvider({ children }: MovieContextProviderProps) {
     setFavoriteMovies(newFavoriteMovies);
   }
 
+  function startFavoriteMovies(movies: Movie[]) {
+    setFavoriteMovies(movies);
+  }
+
   return (
     <MovieContext.Provider
       value={{
+        startFavoriteMovies,
         favoriteMovies,
         favoriteMovieIds,
         addFavoriteMovie,

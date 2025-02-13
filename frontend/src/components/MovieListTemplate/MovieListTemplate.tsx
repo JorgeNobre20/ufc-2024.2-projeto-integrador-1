@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   FormControlLabel,
-  TextField,
+  // TextField,
   Checkbox,
   Pagination,
+  Button,
 } from "@mui/material";
 
 import {
   CheckboxLabel,
   Container,
   ContentContainer,
+  EmptyMovieListContainer,
+  EmptyMovieListLabel,
   GenresList,
   Header,
   HeaderButtonContainer,
@@ -22,95 +25,119 @@ import {
   SideBarTitle,
   Title,
   TitleContainer,
-  YearFilterContainer,
+  // YearFilterContainer,
 } from "./MovieListTemplate.styles";
 
 import logoImage from "../../assets/logo.svg";
 
-import { MovieCard } from "../MovieCard/MovieCard";
-import { MOVIE_GENRES } from "./MovieListTemplate.constants";
 import { Movie, MovieGenre } from "../../models";
+import { webApi } from "../../webservice/api";
+import { useNotification } from "../../hooks/useNotification";
+import { ApiGenre } from "../../webservice/responses";
+import { CenteredLoading } from "../CenteredLoading/CenteredLoading";
+import { MovieCard } from "../MovieCard/MovieCard";
 
 interface Props {
   title: string;
   headerButtonLabel: string;
   movies: Movie[];
+  isLoadingMovies: boolean;
   onPressHeaderButton: () => void;
   onChangeInitialYear: (selectedYear: number | null) => void;
   onChangeFinalYear: (selectedYear: number | null) => void;
-  onChangeSelectedGenres: (selectedGenres: MovieGenre[]) => void;
+  onSearchByGender: (selectedGenres: MovieGenre[]) => void;
 }
 
 export function MovieListTemplate({
   headerButtonLabel,
   title,
   movies,
+  isLoadingMovies,
   onPressHeaderButton,
-  onChangeFinalYear,
-  onChangeInitialYear,
-  onChangeSelectedGenres,
+  onSearchByGender,
 }: Props) {
-  const [initialYear, setInitialYear] = useState("");
-  const [finalYear, setFinalYear] = useState("");
+  const { showMessage } = useNotification();
 
+  // const [initialYear, setInitialYear] = useState("");
+  // const [finalYear, setFinalYear] = useState("");
+  const [isLoadingGenres, setIsLoadingGenres] = useState(false);
   const [selectedGenres, setSelectedGenres] = useState<MovieGenre[]>([]);
-  const [genres, setGenres] = useState<MovieGenre[]>(MOVIE_GENRES);
+  const [genres, setGenres] = useState<MovieGenre[]>([]);
 
   const selectedGenreIds = useMemo(() => {
     const genreIds = selectedGenres.map((genre) => genre.id);
     return genreIds;
   }, [selectedGenres]);
 
-  function handleChangeInitialYear(event: React.ChangeEvent<HTMLInputElement>) {
-    const newValue = validateYearFieldValue(event, initialYear);
-    setInitialYear(newValue);
+  // function handleChangeInitialYear(event: React.ChangeEvent<HTMLInputElement>) {
+  //   const newValue = validateYearFieldValue(event, initialYear);
+  //   setInitialYear(newValue);
 
-    if (newValue.length === 4) {
-      onChangeInitialYear(parseInt(newValue));
-    }
-  }
+  //   if (newValue.length === 4) {
+  //     onChangeInitialYear(parseInt(newValue));
+  //   }
+  // }
 
-  function handleChangeFinalYear(event: React.ChangeEvent<HTMLInputElement>) {
-    const newValue = validateYearFieldValue(event, finalYear);
-    setFinalYear(newValue);
+  // function handleChangeFinalYear(event: React.ChangeEvent<HTMLInputElement>) {
+  //   const newValue = validateYearFieldValue(event, finalYear);
+  //   setFinalYear(newValue);
 
-    if (newValue.length === 4) {
-      onChangeFinalYear(parseInt(newValue));
-    }
-  }
+  //   if (newValue.length === 4) {
+  //     onChangeFinalYear(parseInt(newValue));
+  //   }
+  // }
 
-  function validateYearFieldValue(
-    event: React.ChangeEvent<HTMLInputElement>,
-    currentValue: string
-  ) {
-    if (event.target.value.length > 4) {
-      return currentValue;
-    }
+  // function validateYearFieldValue(
+  //   event: React.ChangeEvent<HTMLInputElement>,
+  //   currentValue: string
+  // ) {
+  //   if (event.target.value.length > 4) {
+  //     return currentValue;
+  //   }
 
-    const onlyNumbers = event.target.value.replace(/[^0-9]/g, "");
-    return onlyNumbers;
-  }
+  //   const onlyNumbers = event.target.value.replace(/[^0-9]/g, "");
+  //   return onlyNumbers;
+  // }
 
   function onChangeGenreCheckbox(
-    genre: MovieGenre,
-    wasPreviousChecked: boolean
+    checkboxGender: MovieGenre,
+    shouldBeChecked: boolean
   ) {
     let updatedSelectedGenres = [];
 
-    if (wasPreviousChecked) {
+    if (!shouldBeChecked) {
       updatedSelectedGenres = selectedGenres.filter(
-        (genre) => genre.id !== genre.id
+        (genre) => genre.id !== checkboxGender.id
       );
     } else {
-      updatedSelectedGenres = [...selectedGenres, genre];
+      updatedSelectedGenres = [...selectedGenres, checkboxGender];
     }
 
-    setSelectedGenres([...selectedGenres, genre]);
-    onChangeSelectedGenres(updatedSelectedGenres);
+    setSelectedGenres(updatedSelectedGenres);
+  }
+
+  async function loadGenres() {
+    setIsLoadingGenres(true);
+
+    try {
+      const { data } = await webApi.get<{ genres: ApiGenre[] }>("/genres");
+
+      const mappedGenres = data.genres.map((genre) => ({
+        id: genre.id,
+        name: genre.name,
+        value: genre.name,
+      }));
+
+      setGenres(mappedGenres);
+    } catch {
+      showMessage("Erro ao carregar gêneros", true);
+    } finally {
+      setIsLoadingGenres(false);
+    }
   }
 
   useEffect(() => {
-    setGenres(MOVIE_GENRES);
+    loadGenres();
   }, []);
 
   return (
@@ -139,8 +166,8 @@ export function MovieListTemplate({
                 key={genre.id}
                 control={
                   <Checkbox
-                    onChange={(_, wasPreviousChecked) =>
-                      onChangeGenreCheckbox(genre, wasPreviousChecked)
+                    onChange={(_, shouldBeChecked) =>
+                      onChangeGenreCheckbox(genre, shouldBeChecked)
                     }
                     checked={selectedGenreIds.includes(genre.id)}
                   />
@@ -150,7 +177,19 @@ export function MovieListTemplate({
             ))}
           </GenresList>
 
-          <SideBarTitle>Data de lançamento</SideBarTitle>
+          <Button
+            variant="contained"
+            disabled={
+              selectedGenreIds.length === 0 ||
+              isLoadingGenres ||
+              isLoadingMovies
+            }
+            onClick={() => onSearchByGender(selectedGenres)}
+          >
+            Buscar
+          </Button>
+
+          {/* <SideBarTitle>Data de lançamento</SideBarTitle>
           <YearFilterContainer>
             <TextField
               label="De"
@@ -171,19 +210,35 @@ export function MovieListTemplate({
               value={finalYear}
               onChange={handleChangeFinalYear}
             />
-          </YearFilterContainer>
+          </YearFilterContainer> */}
         </SideBar>
 
         <MovieListContainer>
-          <MoviesList>
-            {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-          </MoviesList>
+          {isLoadingMovies ? (
+            <CenteredLoading />
+          ) : (
+            <>
+              {movies.length > 0 ? (
+                <>
+                  <MoviesList>
+                    {movies.map((movie) => (
+                      <MovieCard key={movie.id} movie={movie} />
+                    ))}
+                  </MoviesList>
 
-          <MovieListFooter>
-            <Pagination count={10} shape="rounded" />
-          </MovieListFooter>
+                  <MovieListFooter>
+                    <Pagination count={10} shape="rounded" />
+                  </MovieListFooter>
+                </>
+              ) : (
+                <EmptyMovieListContainer>
+                  <EmptyMovieListLabel>
+                    Nenhum filme encontrado
+                  </EmptyMovieListLabel>
+                </EmptyMovieListContainer>
+              )}
+            </>
+          )}
         </MovieListContainer>
       </ContentContainer>
     </Container>
